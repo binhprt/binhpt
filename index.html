@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expandable ListView</title>
+    <style>
+        body{padding:0;margin:0}
+        .list-group{margin:0}
+        .list-group-item{padding:18px 24px;border-bottom:1px solid #eee;display:grid;grid-template-columns:1fr auto;align-items:center}
+        .list-group-item:last-child{border-bottom:none}
+        .sub-items{
+            height:0;
+            overflow:hidden;
+            transition:height .15s ease;
+            grid-column:1/3;
+            display: grid; /* Sử dụng grid layout */
+            grid-template-columns: repeat(3, 1fr); /* Tạo 3 cột */
+            gap: 10px; /* Khoảng cách giữa các phần tử */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            justify-content: center; /* Căn giữa theo chiều ngang */
+        }
+        .sub-items > div {
+            text-align: center; /* Căn giữa nội dung trong mỗi ô grid */
+            padding: 20px 0; /* Đặt padding trên và dưới là 10px */
+        }
+        .list-group-item.active .sub-items{height:auto}
+        .expand-icon{
+            cursor:pointer;
+            font-size:16px;
+            color:#555;
+            transition:transform .25s ease,color .2s ease;
+            user-select:none;
+            background:none;
+            outline:none;
+        }
+        .list-group-item.active .expand-icon{
+            transform: rotate(180deg);
+            color:#000;
+        }
+        .today{color:red;font-weight:bold}
+        .add-icon {
+            cursor: pointer;
+            font-size: 16px;
+            color: #555;
+            user-select: none;
+            background: none;
+            border: none;
+            outline: none;
+            margin-right: 20px; /* Khoảng cách giữa hai icon */
+        }
+        .icon-container {
+            display: inline-flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="list-group"></div>
+
+    <script>
+        const listGroup = document.querySelector('.list-group');
+
+        const generateDays = () => {
+            const today = new Date();
+            const currentDay = today.getDate();
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const listItem = document.createElement('div');
+                listItem.classList.add('list-group-item');
+                listItem.innerHTML = `
+                    <span class="${i === currentDay ? 'today' : ''}">${i}</span>
+                    <div class='icon-container'>
+                        <span class="add-icon">🈯</span>
+                        <span class="expand-icon">🔽</span>
+                    </div>
+                    <div class="sub-items">
+                        <div>Thêm biến 1</div>
+                        <div>Thêm biến 2</div>
+                        <div>Thêm biến 3</div>
+                    </div>
+                `;
+
+                const expandIcon = listItem.querySelector('.expand-icon');
+                expandIcon.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    toggleSubItems(listItem);
+                });
+
+                 const addIcon = listItem.querySelector('.add-icon');
+                addIcon.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    // Thêm logic xử lý khi click vào nút "+" ở đây
+                    console.log('Add icon clicked for day ' + i);
+                });
+
+                listGroup.appendChild(listItem);
+            }
+        };
+
+        generateDays();
+
+        function toggleSubItems(element) {
+            const subItems = element.querySelector('.sub-items');
+            const isActive = element.classList.contains('active');
+
+            document.querySelectorAll('.list-group-item.active').forEach(item => {
+                if (item !== element) {
+                    item.classList.remove('active');
+                    item.querySelector('.sub-items').style.height = '0';
+                }
+            });
+
+            subItems.style.height = isActive ? '0' : subItems.scrollHeight + 'px';
+            element.classList[isActive ? 'remove' : 'add']('active');
+        }
+    </script>
+</body>
+</html>
